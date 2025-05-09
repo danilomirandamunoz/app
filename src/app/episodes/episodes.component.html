@@ -1,0 +1,8 @@
+<div *ngIf="episodes(); else loading">
+    <div *ngFor="let ep of episodes()?.results">
+      <p>{{ ep.episode }} - {{ ep.name }} ({{ ep.air_date }})</p>
+    </div>
+    <button (click)="previousPage()" [disabled]="page() === 1">Anterior</button>
+    <button (click)="nextPage()">Siguiente</button>
+  </div>
+  <ng-template #loading> Cargando... </ng-template>
