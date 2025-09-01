@@ -1,0 +1,55 @@
+trigger: none
+pr: none
+
+pool:
+  name: Azure Pipelines
+
+variables:
+  GIT_REPO: 'https://github.com/tu-usuario/tu-repo.git'
+  GIT_BRANCH: 'main'
+
+steps:
+# Clonar el repo manualmente
+- script: |
+    git clone --branch $(GIT_BRANCH) $(GIT_REPO) repo
+  displayName: 'Clonar repo manualmente'
+
+# Usar Node 14
+- task: NodeTool@0
+  displayName: 'Use Node 14.20.1'
+  inputs:
+    versionSpec: 14.20.1
+
+# Instalar Angular CLI
+- task: Npm@1
+  displayName: 'Instalar Angular CLI'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'install -g @angular/cli@10.1.7'
+
+# Instalar dependencias
+- task: Npm@1
+  displayName: 'Instalar dependencias'
+  inputs:
+    command: custom
+    workingDir: repo/client
+    verbose: false
+    customCommand: 'npm ci'
+
+# Build
+- script: |
+    cd repo/client
+    npm run build-test
+  displayName: 'Build Angular'
+
+# Archivar DIST
+- task: ArchiveFiles@2
+  displayName: 'Archive DIST'
+  inputs:
+    rootFolderOrFile: repo/client/dist/financialNG
+    includeRootFolder: false
+
+# Publicar artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
